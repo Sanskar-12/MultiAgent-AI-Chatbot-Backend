@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import proxy from "express-http-proxy";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import { protect } from "./middlewares/auth.middleware.js";
+import { getCurrentUser } from "./controllers/user.controller.js";
 
 dotenv.config();
 
@@ -17,12 +19,13 @@ app.use(
   }),
 );
 app.use(cookieParser());
-
-app.use("/auth", proxy(process.env.AUTH_SERVICE));
-
 app.get("/", (req, res) => {
   res.send("Api Gateway is working");
 });
+app.get("/api/me", protect, getCurrentUser);
+
+// AUTH SERVICE
+app.use("/api/auth", proxy(process.env.AUTH_SERVICE));
 
 app.listen(port, () => {
   console.log(`Api Gateway listening on port ${port}`);
