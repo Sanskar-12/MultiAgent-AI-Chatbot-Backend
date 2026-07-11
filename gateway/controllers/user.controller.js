@@ -1,4 +1,6 @@
-export const getCurrentUser = async () => {
+import { errorResponse } from "../../shared/errorResponse.js";
+
+export const getCurrentUser = async (req, res) => {
   try {
     return res.status(200).json({
       success: true,

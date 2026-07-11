@@ -1,4 +1,5 @@
 import { errorResponse } from "../../shared/errorResponse.js";
+import redis from "../../shared/redis/redis.js";
 
 export const protect = async (req, res, next) => {
   try {
