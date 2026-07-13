@@ -25,6 +25,8 @@ app.use(cookieParser());
 app.use("/api/auth", proxy(process.env.AUTH_SERVICE));
 // CHAT SERVICE
 app.use("/api/chat", protect, proxyWithHeader(process.env.CHAT_SERVICE));
+// AGENT SERVICE
+app.use("/api/agent", protect, proxyWithHeader(process.env.AGENT_SERVICE));
 
 app.get("/", (req, res) => {
   res.send("Api Gateway is working");
