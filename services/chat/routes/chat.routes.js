@@ -1,7 +1,7 @@
 import express from "express";
 import {
   createConversation,
-  getConversation,
+  getConversations,
   getMessages,
   saveMessage,
   updateConversation,
@@ -10,7 +10,7 @@ import {
 const router = express.Router();
 
 router.get("/create/conversation", createConversation);
-router.get("/get/conversation", getConversation);
+router.get("/get/conversations", getConversations);
 router.put("/update/conversation", updateConversation);
 router.post("/save/message", saveMessage);
 router.get("/get/message/:conversationId", getMessages);

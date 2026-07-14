@@ -13,7 +13,7 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: process.env.AGENT_SERVICE,
+    origin: [process.env.AGENT_SERVICE, process.env.GATEWAY_SERVICE],
     credentials: true,
   }),
 );

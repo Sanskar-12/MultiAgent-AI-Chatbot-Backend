@@ -25,7 +25,7 @@ export const createConversation = async (req, res) => {
   }
 };
 
-export const getConversation = async (req, res) => {
+export const getConversations = async (req, res) => {
   try {
     const userId = req.headers["x-user-id"];
 
