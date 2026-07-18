@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 import { protect } from "./middlewares/auth.middleware.js";
 import { getCurrentUser } from "./controllers/user.controller.js";
 import { proxyWithHeader } from "./utils/proxyWithHeader.js";
+import morgan from "morgan";
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ app.use(
   }),
 );
 app.use(cookieParser());
+app.use(morgan("dev"));
 
 // AUTH SERVICE
 app.use("/api/auth", proxy(process.env.AUTH_SERVICE));
