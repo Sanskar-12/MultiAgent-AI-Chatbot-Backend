@@ -105,8 +105,6 @@ export const getMessages = async (req, res) => {
 
     const messages = await Message.find({
       conversationId,
-    }).sort({
-      createdAt: -1,
     });
 
     return res.status(200).json({
