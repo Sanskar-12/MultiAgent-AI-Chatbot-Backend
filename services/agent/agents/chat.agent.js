@@ -1,3 +1,9 @@
+import {
+  AIMessage,
+  HumanMessage,
+  SystemMessage,
+} from "@langchain/core/messages";
+import { getMemory } from "../config/memory.js";
 import { getModel } from "../config/models.js";
 
 export const chatAgent = async (state) => {
@@ -19,16 +25,22 @@ Markdown rules:
 
 Output only the final answer — no reasoning, analysis, or <think> tags.`;
 
-  const response = await llm.invoke([
-    {
-      role: "system",
-      content: systemPrompt,
-    },
-    {
-      role: "human",
-      content: state.prompt,
-    },
-  ]);
+  const historyMessages = await getMemory(state.conversationId);
+
+  const messages = [new SystemMessage(systemPrompt)];
+
+  historyMessages.forEach((msg) => {
+    if (msg.role === "user") {
+      messages.push(new HumanMessage(msg.content));
+    }
+    if (msg.role === "assistant") {
+      messages.push(new AIMessage(msg.content));
+    }
+  });
+
+  messages.push(new HumanMessage(state.prompt));
+
+  const response = await llm.invoke(messages);
 
   return {
     ...state,
