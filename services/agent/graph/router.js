@@ -1,6 +1,13 @@
 import { getModel } from "../config/models.js";
 
 export const routerAgent = async (state) => {
+  if (state.agent && state.agent !== "auto") {
+    return {
+      ...state,
+      agent: state.agent,
+    };
+  }
+
   const llm = getModel("router");
   const prompt = `
   You are a Router Agent.
