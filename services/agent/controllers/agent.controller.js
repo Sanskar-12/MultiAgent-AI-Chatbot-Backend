@@ -29,11 +29,13 @@ export const agent = async (req, res) => {
       conversationId,
       role: "assistant",
       content: response,
+      images: result.images,
     });
 
     return res.status(200).json({
       success: true,
       response,
+      images: result.images,
     });
   } catch (error) {
     return errorResponse(

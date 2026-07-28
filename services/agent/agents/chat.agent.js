@@ -9,7 +9,26 @@ import { getModel } from "../config/models.js";
 export const chatAgent = async (state) => {
   const llm = getModel("chat");
 
+  // search results coming from the search agent
+  const searchContext = state.searchResults
+    ? `
+    Web Search Results:
+
+  ${JSON.stringify(state.searchResults)}
+
+  Answer the user using only the above search results
+    `
+    : "";
+
+  // system prompt for llm
   const systemPrompt = `You are CortexAI, an intelligent AI assistant.
+
+  ${searchContext}
+
+  if searchContext exists:
+
+  - Use search results to answer.
+  - Do not mention internal tools.
 
 - For greetings or simple questions, respond in plain conversational text.
 - For technical, educational, or detailed topics, respond in well-formed Markdown.
