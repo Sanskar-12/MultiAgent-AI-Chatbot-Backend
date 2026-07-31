@@ -21,8 +21,6 @@ export const agent = async (req, res) => {
       agent,
     });
 
-    console.log(result, "Graph -----------------");
-
     const response = result.aiResponse;
 
     await addMessages(conversationId, "assistant", response);
@@ -32,12 +30,14 @@ export const agent = async (req, res) => {
       role: "assistant",
       content: response,
       images: result.images,
+      artifacts: result.artifacts,
     });
 
     return res.status(200).json({
       success: true,
       response,
       images: result.images,
+      artifacts: result.artifacts,
     });
   } catch (error) {
     return errorResponse(
