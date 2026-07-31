@@ -9,6 +9,8 @@ import { getModel } from "../config/models.js";
 export const chatAgent = async (state) => {
   const llm = getModel("chat");
 
+  console.log(state);
+
   // search results coming from the search agent
   const searchContext = state.searchResults
     ? `
@@ -60,6 +62,8 @@ Output only the final answer — no reasoning, analysis, or <think> tags.`;
   messages.push(new HumanMessage(state.prompt));
 
   const response = await llm.invoke(messages);
+
+  console.log(response, "Ai response");
 
   return {
     ...state,

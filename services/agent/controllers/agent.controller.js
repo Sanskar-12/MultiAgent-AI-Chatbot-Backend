@@ -21,6 +21,8 @@ export const agent = async (req, res) => {
       agent,
     });
 
+    console.log(result, "Graph -----------------");
+
     const response = result.aiResponse;
 
     await addMessages(conversationId, "assistant", response);
