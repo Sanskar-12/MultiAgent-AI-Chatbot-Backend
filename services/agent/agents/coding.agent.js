@@ -65,6 +65,7 @@ USER REQUEST: ${state.prompt}
         {
           id: Date.now(),
           type: "Project",
+          title: state.prompt,
           files: data.files || [],
         },
       ],
