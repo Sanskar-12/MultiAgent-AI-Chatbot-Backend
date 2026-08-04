@@ -35,6 +35,11 @@ STRICT OUTPUT RULES:
 3. Do NOT include any text, explanation, or commentary before or after the JSON.
 4. The JSON must have this exact structure:
 
+IMAGES
+Always use real unsplash images
+Never use placeholders
+
+
 {
   "files": [
     { "name": "index.html", "content": "<!-- full HTML code here -->" },
