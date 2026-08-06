@@ -7,21 +7,22 @@ import { getMemory } from "../config/memory.js";
 import { getModel } from "../config/models.js";
 
 export const chatAgent = async (state) => {
-  const llm = await getModel("chat");
+  try {
+    const llm = await getModel("chat");
 
-  // search results coming from the search agent
-  const searchContext = state.searchResults
-    ? `
+    // search results coming from the search agent
+    const searchContext = state.searchResults
+      ? `
     Web Search Results:
 
   ${JSON.stringify(state.searchResults)}
 
   Answer the user using only the above search results
     `
-    : "";
+      : "";
 
-  // system prompt for llm
-  const systemPrompt = `You are CortexAI, an intelligent AI assistant.
+    // system prompt for llm
+    const systemPrompt = `You are CortexAI, an intelligent AI assistant.
 
   ${searchContext}
 
@@ -44,25 +45,31 @@ Markdown rules:
 
 Output only the final answer — no reasoning, analysis, or <think> tags.`;
 
-  const historyMessages = await getMemory(state.conversationId);
+    const historyMessages = await getMemory(state.conversationId);
 
-  const messages = [new SystemMessage(systemPrompt)];
+    const messages = [new SystemMessage(systemPrompt)];
 
-  historyMessages.forEach((msg) => {
-    if (msg.role === "user") {
-      messages.push(new HumanMessage(msg.content));
-    }
-    if (msg.role === "assistant") {
-      messages.push(new AIMessage(msg.content));
-    }
-  });
+    historyMessages.forEach((msg) => {
+      if (msg.role === "user") {
+        messages.push(new HumanMessage(msg.content));
+      }
+      if (msg.role === "assistant") {
+        messages.push(new AIMessage(msg.content));
+      }
+    });
 
-  messages.push(new HumanMessage(state.prompt));
+    messages.push(new HumanMessage(state.prompt));
 
-  const response = await llm.invoke(messages);
+    const response = await llm.invoke(messages);
 
-  return {
-    ...state,
-    aiResponse: response.content,
-  };
+    return {
+      ...state,
+      aiResponse: response.content,
+    };
+  } catch (error) {
+    return {
+      ...state,
+      aiResponse: "Failed to generate message",
+    };
+  }
 };
