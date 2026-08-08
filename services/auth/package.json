@@ -13,7 +13,11 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "firebase-admin": "^14.1.0",
+    "jose": "^4.15.9",
     "mongoose": "^9.7.4",
     "morgan": "^1.11.0"
+  },
+  "overrides": {
+    "jose": "^4.15.9"
   }
 }

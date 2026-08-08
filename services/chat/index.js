@@ -3,6 +3,9 @@ import dotenv from "dotenv";
 import connectToDB from "./config/db.js";
 import router from "./routes/chat.routes.js";
 import cors from "cors";
+import dns from "dns";
+
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
 
 dotenv.config();
 
