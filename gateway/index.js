@@ -29,6 +29,8 @@ app.use("/api/auth", proxy(process.env.AUTH_SERVICE));
 app.use("/api/chat", protect, proxyWithHeader(process.env.CHAT_SERVICE));
 // AGENT SERVICE
 app.use("/api/agent", protect, proxyWithHeader(process.env.AGENT_SERVICE));
+// BILLING SERVICE
+app.use("/api/billing", protect, proxyWithHeader(process.env.BILLING_SERVICE));
 
 app.get("/", (req, res) => {
   res.send("Api Gateway is working");

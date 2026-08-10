@@ -83,3 +83,53 @@ export const logout = async (req, res) => {
     );
   }
 };
+
+export const updateUserPayment = async (req, res) => {
+  try {
+    const { plan, credits, userId } = req.body;
+
+    const user = await User.findById(userId);
+
+    if (!userId) {
+      return errorResponse(res, 404, false, `User not found`);
+    }
+
+    user.plan = plan;
+    user.credits = user.credits + credits;
+    user.totalCredits = user.totalCredits + credits;
+    user.planExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
+    await user.save();
+
+    const { session } = req.cookies;
+
+    // updating the user session in redis
+    await redis.set(
+      `session-${session}`,
+      JSON.stringify({
+        userId: user._id,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar,
+        plan: user.plan,
+        credits: user.credits,
+        totalCredits: user.totalCredits,
+        planExpiresAt: user.planExpiresAt,
+      }),
+      "EX",
+      7 * 24 * 60 * 60 * 1000,
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "User payment details updated",
+    });
+  } catch (error) {
+    return errorResponse(
+      res,
+      500,
+      false,
+      `Internal Server Error ${error}  - (Auth Service updateUserPayment)`,
+    );
+  }
+};
