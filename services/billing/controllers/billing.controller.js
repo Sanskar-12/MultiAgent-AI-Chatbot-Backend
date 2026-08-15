@@ -3,6 +3,7 @@ import { errorResponse } from "../../../shared/errorResponse.js";
 import { PLANS } from "../config/plans.js";
 import razorpay from "../config/razorpay.js";
 import { Payment } from "../model/payment.model.js";
+import crypto from "crypto";
 
 export const createOrder = async (req, res) => {
   try {
@@ -70,11 +71,20 @@ export const verifyPayment = async (req, res) => {
 
     await payment.save();
 
-    await axios.put(`${process.env.AUTH_SERVICE}/update-plan`, {
-      plan: payment.plan,
-      credits: payment.credits,
-      userId: payment.userId,
-    });
+    // in billing service
+    const { data } = await axios.put(
+      `${process.env.AUTH_SERVICE}/update-plan`,
+      {
+        plan: payment.plan,
+        credits: payment.credits,
+        userId: payment.userId,
+      },
+      {
+        headers: {
+          Cookie: `session=${req.cookies.session}`,
+        },
+      },
+    );
 
     return res.status(200).json({
       success: true,
