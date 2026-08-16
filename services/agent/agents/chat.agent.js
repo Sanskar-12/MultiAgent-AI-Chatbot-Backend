@@ -68,6 +68,7 @@ Output only the final answer — no reasoning, analysis, or <think> tags.`;
     return {
       ...state,
       aiResponse: response.content,
+      agent: "chat",
     };
   } catch (error) {
     return {

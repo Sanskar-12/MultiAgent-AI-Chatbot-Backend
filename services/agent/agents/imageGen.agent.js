@@ -64,6 +64,7 @@ export const imageGenAgent = async (state) => {
         "",
         "Link expires in 1 day",
       ].join("\n"),
+      agent: "imageGen",
     };
   } catch (error) {
     console.log(error);

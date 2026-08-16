@@ -39,6 +39,7 @@ export const agent = async (req, res) => {
       response,
       images: result.images,
       artifacts: result.artifacts,
+      agent: result.agent,
     });
   } catch (error) {
     return errorResponse(

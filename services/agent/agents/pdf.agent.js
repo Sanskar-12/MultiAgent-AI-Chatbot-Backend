@@ -62,6 +62,7 @@ export const pdfAgent = async (state) => {
         "",
         "Link expires in 1 Day",
       ].join("\n"),
+      agent: "pdf",
     };
   } catch (error) {
     console.log(error);

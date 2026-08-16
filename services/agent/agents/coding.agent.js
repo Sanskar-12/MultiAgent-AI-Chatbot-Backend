@@ -109,5 +109,6 @@ USER REQUEST: ${state.prompt}
     ...state,
     aiResponse: data,
     artifacts: [],
+    agent: "coding",
   };
 };

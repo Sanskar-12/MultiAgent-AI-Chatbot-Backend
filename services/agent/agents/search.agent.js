@@ -13,6 +13,7 @@ export const searchAgent = async (state) => {
       ...state,
       searchResults: results,
       images: results.images,
+      agent: "search",
     };
   } catch (error) {
     return {

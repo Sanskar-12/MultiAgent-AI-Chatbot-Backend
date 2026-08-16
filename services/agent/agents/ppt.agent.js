@@ -78,6 +78,7 @@ export const pptAgent = async (state) => {
         "",
         "Link expires in 1 Day",
       ].join("\n"),
+      agent: "ppt",
     };
   } catch (error) {
     console.log(error);
