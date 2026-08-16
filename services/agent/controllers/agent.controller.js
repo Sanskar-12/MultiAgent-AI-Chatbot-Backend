@@ -19,6 +19,7 @@ export const agent = async (req, res) => {
       prompt,
       conversationId,
       agent,
+      userId: req.headers["x-user-id"],
     });
 
     const response = result.aiResponse;

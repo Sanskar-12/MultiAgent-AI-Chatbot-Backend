@@ -5,6 +5,7 @@ import {
 } from "@langchain/core/messages";
 import { getMemory } from "../config/memory.js";
 import { getModel } from "../config/models.js";
+import { deductCredits } from "../utils/deductCredits.js";
 
 export const chatAgent = async (state) => {
   try {
@@ -61,6 +62,8 @@ Output only the final answer — no reasoning, analysis, or <think> tags.`;
     messages.push(new HumanMessage(state.prompt));
 
     const response = await llm.invoke(messages);
+
+    await deductCredits(state.userId, "chat");
 
     return {
       ...state,

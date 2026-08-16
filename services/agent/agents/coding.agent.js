@@ -1,4 +1,5 @@
 import { getModel } from "../config/models.js";
+import { deductCredits } from "../utils/deductCredits.js";
 
 export const codingAgent = async (state) => {
   const intentLLM = await getModel("intent");
@@ -101,6 +102,8 @@ USER REQUEST: ${state.prompt}
   );
 
   const data = res.content;
+
+  await deductCredits(state.userId, "coding");
 
   return {
     ...state,

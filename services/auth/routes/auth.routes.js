@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  deductCredits,
   login,
   logout,
   updateUserPayment,
@@ -10,5 +11,6 @@ const router = express.Router();
 router.post("/login", login);
 router.get("/logout", logout);
 router.put("/update-plan", updateUserPayment);
+router.put("/deduct-credits", deductCredits);
 
 export default router;
