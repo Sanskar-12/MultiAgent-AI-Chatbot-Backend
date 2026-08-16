@@ -7,6 +7,8 @@ import { codingAgent } from "../agents/coding.agent.js";
 import { pdfAgent } from "../agents/pdf.agent.js";
 import { pptAgent } from "../agents/ppt.agent.js";
 import { imageGenAgent } from "../agents/imageGen.agent.js";
+import { pdfRag } from "../agents/pdfRag.agent.js";
+import { imageAnalyzer } from "../agents/imageAnalyzer.agent.js";
 
 const workflow = new StateGraph(agentState);
 
@@ -18,6 +20,8 @@ workflow.addNode("coding", codingAgent);
 workflow.addNode("pdf", pdfAgent);
 workflow.addNode("ppt", pptAgent);
 workflow.addNode("imageGen", imageGenAgent);
+workflow.addNode("pdfrag", pdfRag);
+workflow.addNode("imageanalyzer", imageAnalyzer);
 
 // workflow edges
 workflow.addEdge("__start__", "router");
@@ -37,6 +41,10 @@ workflow.addConditionalEdges(
         return "ppt";
       case "imageGen":
         return "imageGen";
+      case "pdfrag":
+        return "pdfrag";
+      case "imageanalyzer":
+        return "imageanalyzer";
       default:
         return "chat";
     }
@@ -48,6 +56,8 @@ workflow.addConditionalEdges(
     pdf: "pdf",
     ppt: "ppt",
     imageGen: "imageGen",
+    pdfrag: "pdfrag",
+    imageanalyzer: "imageanalyzer",
   },
 );
 workflow.addEdge("search", "chat");
@@ -56,5 +66,7 @@ workflow.addEdge("coding", "__end__");
 workflow.addEdge("pdf", "__end__");
 workflow.addEdge("ppt", "__end__");
 workflow.addEdge("imageGen", "__end__");
+workflow.addEdge("pdfrag", "__end__");
+workflow.addEdge("imageanalyzer", "__end__");
 
 export const graph = workflow.compile();
