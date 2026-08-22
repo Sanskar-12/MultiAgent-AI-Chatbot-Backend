@@ -4,6 +4,7 @@ import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import vectorStore from "../config/vectorDb.js";
 import { getModel } from "../config/models.js";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
+import { deductCredits } from "../utils/deductCredits";
 
 export const pdfRag = async (state) => {
   try {
@@ -56,6 +57,8 @@ export const pdfRag = async (state) => {
     ];
 
     const response = llm.invoke(messages);
+
+    await deductCredits(state.userId, "pdf");
 
     return {
       ...state,
