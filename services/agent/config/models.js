@@ -31,6 +31,8 @@ export const getModel = (agent) => {
       return groq;
     case "coding":
       return deepseek;
+    case "imageanalyzer":
+      return gemini;
     default:
       return groq;
   }
