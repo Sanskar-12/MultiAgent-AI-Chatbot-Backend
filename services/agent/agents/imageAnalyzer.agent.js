@@ -1,5 +1,5 @@
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
-import { getModel } from "../config/models";
+import { getModel } from "../config/models.js";
 import fs from "fs";
 
 export const imageAnalyzer = async (state) => {
