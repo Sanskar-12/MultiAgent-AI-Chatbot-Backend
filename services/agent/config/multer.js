@@ -32,7 +32,7 @@ const filterFile = (req, file, cb) => {
 
 export default multer({
   storage,
-  fileFilter,
+  filterFile,
   limits: {
     fileSize: 20 * 1024 * 1024,
   },

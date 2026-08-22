@@ -8,6 +8,20 @@ export const routerAgent = async (state) => {
     };
   }
 
+  if (state.file.mimetype === "application/pdf") {
+    return {
+      ...state,
+      agent: "pdfrag",
+    };
+  }
+
+  if (state.file.mimetype.startsWith === "image/") {
+    return {
+      ...state,
+      agent: "imageanalyzer",
+    };
+  }
+
   const llm = getModel("router");
   const prompt = `
   You are a Router Agent.

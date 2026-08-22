@@ -6,6 +6,7 @@ import { addMessages } from "../config/memory.js";
 export const agent = async (req, res) => {
   try {
     const { prompt, conversationId, agent } = req.body;
+    const file = req.file;
 
     await addMessages(conversationId, "user", prompt);
 
@@ -20,6 +21,7 @@ export const agent = async (req, res) => {
       conversationId,
       agent,
       userId: req.headers["x-user-id"],
+      file,
     });
 
     const response = result.aiResponse;
