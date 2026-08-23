@@ -1,6 +1,6 @@
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { getModel } from "../config/models.js";
-import fs from "fs";
+import fs from "fs/promises";
 import { deductCredits } from "../utils/deductCredits.js";
 
 export const imageAnalyzer = async (state) => {
@@ -49,6 +49,7 @@ export const imageAnalyzer = async (state) => {
     return {
       ...state,
       aiResponse: response.content,
+      agent: "imageanalyzer",
     };
   } catch (error) {
     console.log(error);
@@ -57,6 +58,8 @@ export const imageAnalyzer = async (state) => {
       aiResponse: "Failed to analyze file",
     };
   } finally {
-    fs.unlink(state.file.path);
+    await fs
+      .unlink(state.file.path)
+      .catch((err) => console.error("Failed to delete temp file:", err));
   }
 };

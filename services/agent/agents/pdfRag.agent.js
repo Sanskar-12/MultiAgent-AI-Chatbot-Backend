@@ -1,14 +1,14 @@
-import fs from "fs";
+import fs from "fs/promises";
 import { PDFParse } from "pdf-parse";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import vectorStore from "../config/vectorDb.js";
 import { getModel } from "../config/models.js";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
-import { deductCredits } from "../utils/deductCredits";
+import { deductCredits } from "../utils/deductCredits.js";
 
 export const pdfRag = async (state) => {
   try {
-    const buffer = fs.readFileSync(state.file.path);
+    const buffer = await fs.readFile(state.file.path);
 
     // convert buffer into pdf
     const pdf = new PDFParse({
@@ -56,18 +56,21 @@ export const pdfRag = async (state) => {
       ),
     ];
 
-    const response = llm.invoke(messages);
+    const response = await llm.invoke(messages);
 
     await deductCredits(state.userId, "pdf");
 
     return {
       ...state,
       aiResponse: response.content,
+      agent: "pdfrag",
     };
   } catch (error) {
     console.log(error);
     return { ...state, aiResponse: "Something went wrong processing the PDF." };
   } finally {
-    fs.unlinkSync(state.file.path);
+    await fs
+      .unlink(state.file.path)
+      .catch((err) => console.error("Failed to delete temp file:", err));
   }
 };
