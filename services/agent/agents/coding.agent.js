@@ -2,11 +2,12 @@ import { getModel } from "../config/models.js";
 import { deductCredits } from "../utils/deductCredits.js";
 
 export const codingAgent = async (state) => {
-  const intentLLM = await getModel("intent");
-  const codingLLM = await getModel("coding");
+  try {
+    const intentLLM = await getModel("intent");
+    const codingLLM = await getModel("coding");
 
-  const intentRes = await intentLLM.invoke(
-    `
+    const intentRes = await intentLLM.invoke(
+      `
     You are an intent classifier.
 
     Return ONLY one of these values.
@@ -21,66 +22,78 @@ export const codingAgent = async (state) => {
 
     User request: ${state.prompt}
     `,
-  );
+    );
 
-  const intentText = intentRes.content;
+    const intentText = intentRes.content;
 
-  // for code generation
-  if (intentText === "CODE_GENERATION") {
-    const prompt = `
-You are a code generation agent. Based on the user's request, generate a complete, working web project (HTML, CSS, and JavaScript).
+    // for code generation
+    if (intentText === "CODE_GENERATION") {
+      const prompt = `
+You are a code generation agent. Generate a complete, working web project.
 
-STRICT OUTPUT RULES:
-1. Respond with ONLY a valid JSON object — your entire response must start with { and end with }.
-2. Do NOT wrap the JSON in \`\`\`json, \`\`\`, or any other markdown code fence.
-3. Do NOT include any text, explanation, or commentary before or after the JSON.
-4. The JSON must have this exact structure:
-
-IMAGES
-Always use real unsplash images
-Never use placeholders
-
+OUTPUT FORMAT (CRITICAL):
+Return ONLY valid JSON. Nothing else. No markdown. No explanation.
 
 {
   "files": [
-    { "name": "index.html", "content": "<!-- full HTML code here -->" },
-    { "name": "style.css", "content": "/* full CSS code here */" },
-    { "name": "script.js", "content": "// full JS code here" }
+    { "name": "index.html", "content": "<!DOCTYPE html>\\n<html>\\n<head>\\n<title>App</title>\\n<link rel=\\"stylesheet\\" href=\\"style.css\\">\\n</head>\\n<body>\\n<h1>Hello</h1>\\n<script src=\\"script.js\\"></script>\\n</body>\\n</html>" },
+    { "name": "style.css", "content": "* {\\n  margin: 0;\\n  padding: 0;\\n}\\n\\nbody {\\n  font-family: Arial;\\n  background: #f5f5f5;\\n}" },
+    { "name": "script.js", "content": "console.log(\\"Hello World\\");\\n\\nfunction test() {\\n  return true;\\n}" }
   ]
 }
 
-5. "content" values must be complete, valid, working code as plain strings (properly escaped for JSON — e.g. escape newlines as \\n and double quotes as \\").
-6. index.html must link style.css and script.js correctly (e.g. <link rel="stylesheet" href="style.css"> and <script src="script.js"></script>).
-7. You may include inline code comments inside the file contents to explain logic, but do NOT add any explanation, summary, or commentary outside the JSON.
-8. Ensure the JSON is syntactically valid and parseable (no trailing commas, properly escaped characters).
-9. If the request only needs one or two files, still return all three file array objects, but leave unused ones with minimal/empty content.
-10. Styling must be minimal and attractive, fully responsive (mobile, tablet, desktop), and visually modern — clean typography, adequate spacing, cohesive color palette, subtle shadows/rounded corners, flexbox/grid layouts.
+ESCAPING RULES (MANDATORY):
+- All newlines → \\n (not actual line breaks)
+- All double quotes (") → \\" (backslash + quote)
+- All backslashes (\\) → \\\\ (double backslash)
+- No markdown code fences (\`\`\`)
+- No text before or after JSON
+- Result must be valid JSON parseable by JSON.parse()
 
-REMEMBER: Output raw JSON only. No \`\`\`json. No \`\`\`. Nothing else.
+EXAMPLE OF CORRECT ESCAPING:
+BAD: "content": "function test() {
+  return "hello";
+}"
+
+GOOD: "content": "function test() {\\n  return \\"hello\\";\\n}"
+
+REQUIREMENTS:
+- Generate index.html with <link rel="stylesheet" href="style.css"> and <script src="script.js"></script>
+- Use real Unsplash images, not placeholders
+- Responsive design (mobile, tablet, desktop)
+- Modern, clean styling
+- All code must be complete and working
 
 USER REQUEST: ${state.prompt}
 `;
 
-    const codingRes = await codingLLM.invoke(prompt);
-    const data = JSON.parse(codingRes.content);
+      const codingRes = await codingLLM.invoke(prompt);
 
-    return {
-      ...state,
-      aiResponse: "Code Generated Successfully",
-      artifacts: [
-        {
-          id: Date.now(),
-          type: "Project",
-          title: state.prompt,
-          files: data.files || [],
-        },
-      ],
-    };
-  }
+      let cleanedContent = codingRes.content
+        .trim()
+        .replace(/^```json\n?/g, "")
+        .replace(/^```\n?/g, "")
+        .replace(/\n?```$/g, "");
 
-  // for other fields
-  const res = await codingLLM.invoke(
-    `
+      const data = JSON.parse(cleanedContent);
+
+      return {
+        ...state,
+        aiResponse: "Code Generated Successfully",
+        artifacts: [
+          {
+            id: Date.now(),
+            type: "Project",
+            title: state.prompt,
+            files: data.files || [],
+          },
+        ],
+      };
+    }
+
+    // for other fields
+    const res = await codingLLM.invoke(
+      `
     The user's request is:
   ${intentText}
 
@@ -99,16 +112,24 @@ USER REQUEST: ${state.prompt}
 
   User request: ${state.prompt}
     `,
-  );
+    );
 
-  const data = res.content;
+    const data = res.content;
 
-  await deductCredits(state.userId, "coding");
+    await deductCredits(state.userId, "coding");
 
-  return {
-    ...state,
-    aiResponse: data,
-    artifacts: [],
-    agent: "coding",
-  };
+    return {
+      ...state,
+      aiResponse: data,
+      artifacts: [],
+      agent: "coding",
+    };
+  } catch (error) {
+    console.error("JSON Parse Error:", error.message);
+    return {
+      ...state,
+      aiResponse: "Failed to generate code. Please try again.",
+      artifacts: [],
+    };
+  }
 };

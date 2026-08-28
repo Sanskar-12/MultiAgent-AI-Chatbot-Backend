@@ -20,6 +20,13 @@ const storage = multer.diskStorage({
 });
 
 const filterFile = (req, file, cb) => {
+  // Allow requests with no file (normal chat)
+  if (!file) {
+    cb(null, true);
+    return;
+  }
+
+  // Validate file type if a file is provided
   if (
     file.mimetype === "application/pdf" ||
     file.mimetype.startsWith("image/")
@@ -32,7 +39,7 @@ const filterFile = (req, file, cb) => {
 
 export default multer({
   storage,
-  filterFile,
+  fileFilter: filterFile,
   limits: {
     fileSize: 20 * 1024 * 1024,
   },
