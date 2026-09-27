@@ -3,9 +3,12 @@ import axios from "axios";
 import { uploadToS3 } from "../utils/uploadToS3.js";
 import { getFromS3 } from "../utils/getFromS3.js";
 import { deductCredits } from "../utils/deductCredits.js";
+import { checkAgentLimit } from "../utils/agentLimit.js";
 
 export const imageGenAgent = async (state) => {
   try {
+    await checkAgentLimit(state.userId, "imageGen");
+
     const llm = await getModel("image");
 
     const prompt = `
@@ -68,6 +71,14 @@ export const imageGenAgent = async (state) => {
     };
   } catch (error) {
     console.log(error);
+
+    if (error.status === 429) {
+      return {
+        ...state,
+        aiResponse: error.data.message,
+      };
+    }
+
     return {
       ...state,
       aiResponse: "Failed to Generate image",

@@ -1,8 +1,11 @@
 import { getModel } from "../config/models.js";
+import { checkAgentLimit } from "../utils/agentLimit.js";
 import { deductCredits } from "../utils/deductCredits.js";
 
 export const codingAgent = async (state) => {
   try {
+    await checkAgentLimit(state.userId, "coding");
+
     const intentLLM = await getModel("intent");
     const codingLLM = await getModel("coding");
 
@@ -126,6 +129,15 @@ USER REQUEST: ${state.prompt}
     };
   } catch (error) {
     console.error("JSON Parse Error:", error.message);
+
+    if (error.status === 429) {
+      return {
+        ...state,
+        aiResponse: error.data.message,
+        artifacts: [],
+      };
+    }
+
     return {
       ...state,
       aiResponse: "Failed to generate code. Please try again.",

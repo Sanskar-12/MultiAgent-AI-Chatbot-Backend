@@ -1,4 +1,5 @@
 import { getModel } from "../config/models.js";
+import { checkAgentLimit } from "../utils/agentLimit.js";
 import { deductCredits } from "../utils/deductCredits.js";
 import { generatePpt } from "../utils/generatePpt.js";
 import { getFromS3 } from "../utils/getFromS3.js";
@@ -6,6 +7,8 @@ import { uploadToS3 } from "../utils/uploadToS3.js";
 
 export const pptAgent = async (state) => {
   try {
+    await checkAgentLimit(state.userId, "ppt");
+
     const llm = await getModel("ppt");
 
     const prompt = `
@@ -82,6 +85,13 @@ export const pptAgent = async (state) => {
     };
   } catch (error) {
     console.log(error);
+
+    if (error.status === 429) {
+      return {
+        ...state,
+        aiResponse: error.data.message,
+      };
+    }
 
     return {
       ...state,

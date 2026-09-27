@@ -1,4 +1,5 @@
 import { getModel } from "../config/models.js";
+import { checkAgentLimit } from "../utils/agentLimit.js";
 import { deductCredits } from "../utils/deductCredits.js";
 import { generatePdf } from "../utils/generatePdf.js";
 import { getFromS3 } from "../utils/getFromS3.js";
@@ -6,6 +7,8 @@ import { uploadToS3 } from "../utils/uploadToS3.js";
 
 export const pdfAgent = async (state) => {
   try {
+    await checkAgentLimit(state.userId, "pdf");
+
     const llm = await getModel("pdf");
 
     const prompt = `
@@ -66,6 +69,14 @@ export const pdfAgent = async (state) => {
     };
   } catch (error) {
     console.log(error);
+
+    if (error.status === 429) {
+      return {
+        ...state,
+        aiResponse: error.data.message,
+      };
+    }
+
     return {
       ...state,
       aiResponse: "Failed to generate PDF",

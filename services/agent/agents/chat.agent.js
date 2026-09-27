@@ -6,9 +6,12 @@ import {
 import { getMemory } from "../config/memory.js";
 import { getModel } from "../config/models.js";
 import { deductCredits } from "../utils/deductCredits.js";
+import { checkAgentLimit } from "../utils/agentLimit.js";
 
 export const chatAgent = async (state) => {
   try {
+    await checkAgentLimit(state.userId, "chat");
+
     const llm = await getModel("chat");
 
     // search results coming from the search agent
@@ -71,6 +74,13 @@ Output only the final answer — no reasoning, analysis, or <think> tags.`;
       agent: "chat",
     };
   } catch (error) {
+    if (error.status === 429) {
+      return {
+        ...state,
+        aiResponse: error.data.message,
+      };
+    }
+
     return {
       ...state,
       aiResponse: "Failed to generate message",
